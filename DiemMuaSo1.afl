@@ -1,0 +1,35 @@
+KhoiLuongLonNhat5 = HHV(Ref (V, -1), 4);
+GiaLonNhat5 = HHV (Ref (C, -1), 4);
+GiaBeNhat5 = LLV (Ref (C, -1), 4);
+
+DK1 = GiaLonNhat5 < 1.05*GiaBeNhat5; // giao dong trong 5%.
+
+TyLeTang = (C-GiaLonNhat5)/GiaLonNhat5;
+
+DK2 = TyLeTang > 0.02; // tang tren 2%
+
+DK3 = V > KhoiLuongLonNhat5*0.8; //khoi luong xap xi
+
+DK4 = 1; // V < KhoiLuongLonNhat5*3; // nhung khong qua cao
+
+DKKL = KhoiLuongLonNhat5 > 40000; // thanh khoan tren 40k
+
+DKGia = C > 10; // gia tren 10
+
+GiaLonNhat = Highest(Ref (C, -1));
+DKHighest = GiaLonNhat <C;
+
+GiaLonNhat200 = HHV (Ref (C, -1), 200);
+DKNam = GiaLonNhat200 < C;
+
+AddColumn(C, "Close", 1.2);
+
+AddColumn(V, "Volumn", 1.0, IIf(V>100000, colorGreen, colorRed));
+
+AddColumn(DKHighest, "Highest", 1.0, IIf(DKHighest, colorGreen, colorRed));
+
+AddColumn(DKNam, "Dinh Nam", 1.0, IIf(DKNam, colorGreen, colorRed));
+
+Buy = DK1 AND DK2 AND DK3 AND DK4 AND DKKL AND DKGia;
+
+Filter = Buy;

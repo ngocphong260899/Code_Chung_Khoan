@@ -1,0 +1,9 @@
+_SECTION_BEGIN("foreign "); 
+Vr="VNINDEX"; // foreign symbol
+SetForeign(Vr);
+Pl = ParamToggle("Plot Foreign","Off,On",1);
+if(Pl==1){
+PlotOHLC(O,H,L,C, ""+Vr+"", colorDarkGrey,styleCandle|styleOwnScale);
+}
+RestorePriceArrays();
+_SECTION_END();

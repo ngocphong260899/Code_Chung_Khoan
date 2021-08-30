@@ -1,0 +1,69 @@
+//Giai phap du lieu CafeF.vn - Chi bao ve Giao dich toan thi truong
+//CafeF Data Solution - Trading History Indicator
+//Ban co the download du lieu hang ngay (EOD) tai http://cafef.vn/du-lieu/download.chn
+//Bo Indicator nay duoc cung cap mien phi, va khong phai la khuyen nghi Mua/Ban. CafeF khong chiu trach nhiem cho bat cu
+//thiet hai nao xay ra khi ban su dung bo Chi bao nay.
+
+barvisible = Status("barvisible");
+Leftbar=ValueWhen(Ref(barvisible,-1)==0 AND barvisible,DateTime() );
+Rightbar=LastValue(DateTime() );
+DateSpan = EndValue(BarIndex()) - BeginValue(BarIndex());
+Range = DateSpan ;
+StartDate = BeginValue(BarIndex());
+EndDate = EndValue(BarIndex());
+
+NN = "NN_" + Name();
+
+KLBan = Foreign(NN,"C",0);
+KLMua = Foreign(NN,"O",0);
+
+GTMua = Prec(Foreign(NN,"V",0),0);
+GTBan = Prec(Foreign(NN,"interest",0),0);
+
+TBGiaMua = IIf(KLMua != 0,GTMua/KLMua,0);
+TBGiaBan = IIf(KLBan != 0,GTBan/KLBan,0);
+TBGiaMuaBan = IIf(TBGiaBan !=0 , TBGiaMua /TBGiaBan *100,0);
+
+
+_SECTION_BEGIN("Name");
+GfxSetOverlayMode(0);
+GfxSelectFont("Verdana", Status("pxheight")/18 );
+GfxSetTextAlign( 6 );// center alignment
+GfxSetTextColor( ColorRGB( 12, 0, 150 ) );
+//GfxTextOut( "CafeF Data Solution",Status("pxwidth")/10, Status("pxheight")/1.11); 
+_SECTION_END();
+
+function PlotGradientArea( array, caption, ColorTop, ColorBottom ) 
+{ 
+ bkclr = GetChartBkColor(); 
+
+ HH = HighestVisibleValue( array ); 
+ if( NOT IsNull( hh ) ) SetChartBkGradientFill( ColorTop, ColorBottom, bkclr, Null, HH ); 
+ Plot( array, Caption, ColorBlend( ColorBottom, colorBlack ) ); 
+ PlotOHLC( HH, HH, array, HH, "", bkclr, styleNoLabel | styleNoTitle | styleCloud, Null, Null, 0, -10 ); 
+} 
+
+
+_SECTION_BEGIN("Chart Display");
+P1 = KLBan;
+P2 = KLMua;
+Color = ParamColor("Color", colorLightGrey );
+Style = ParamStyle("Style") | styleNoRescale;;
+//Plot( bbt1 = KLBan,"",colorBrown); 
+//Plot( bbb1 = 0,"",colorLightGrey);
+//PlotOHLC( bbt1, bbt1, bbb1, bbb1, "", ColorBlend( Color, colorWhite, 0.9 ), styleCloud | styleNoRescale, Null, Null, Null, -1 );
+//PlotGradientArea( KLMua, "Close", ParamColor("Top", colorGreen), ParamColor("Bottom", colorPaleGreen ) ); 
+PM=p2+Ref(p2,-1)+Ref(p2,-3)+Ref(p2,-4)+Ref(p2,-5)+Ref(p2,-6)+Ref(p2,-7)+Ref(p2,-8)+Ref(p2,-9)+Ref(p2,-10)+Ref(p2,-11)+Ref(p2,-12)+Ref(p2,-13)+Ref(p2,-14)+Ref(p2,-15)+Ref(p2,-16)+Ref(p2,-17)+Ref(p2,-18)+Ref(p2,-19)+Ref(p2,-2);
+//Plot(PM,"KL Mua 1T",colorGreen,styleLine);
+PB=p1+Ref(p1,-1)+Ref(p1,-3)+Ref(p1,-4)+Ref(p1,-5)+Ref(p1,-6)+Ref(p1,-7)+Ref(p1,-8)+Ref(p1,-9)+Ref(p1,-10)+Ref(p1,-11)+Ref(p1,-12)+Ref(p1,-13)+Ref(p1,-14)+Ref(p1,-15)+Ref(p1,-16)+Ref(p1,-17)+Ref(p1,-18)+Ref(p1,-19)+Ref(p1,-2);
+//Plot(PB,"KL Bán 1T",colorRed,styleLine);
+PMB = PM-PB;
+Plot(PMB, "KL mua bán ròng 1 T",colorYellow,styleHistogram|styleThick);
+Plot(0,"",colorRed,styleLine);
+_SECTION_END() ;
+Filter=1;
+AddColumn(C,"Close",1.1,colorDefault,colorDefault);
+AddColumn(pmb,"nn mua ban",1.1,colorDefault,colorDefault);
+
+
+

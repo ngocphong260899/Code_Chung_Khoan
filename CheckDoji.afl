@@ -1,0 +1,21 @@
+
+function CheckNear(gia1, gia2, tyle)
+{
+
+	TyleChenhLech = (abs (gia1 - gia2))/gia2;
+
+	result = IIf(TyleChenhLech <= tyle, True, False);
+
+	return result;
+}
+
+
+DKKL = V > 100000;
+
+DKDOJI = CheckNear(O, C, 0.005) AND CheckNear(Ref(O, -1), Ref(C, -1), 0.005);//  AND CheckNear(Ref(O, -2), Ref(C, -2), 0.005);
+
+DKDINGANG = CheckNear (C, Ref (C, -1), 0.005);// AND CheckNear (C, Ref (C, -2), 0.005);
+
+Buy = DKKL AND DKDOJI AND DKDINGANG;
+
+Filter = Buy;

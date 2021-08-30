@@ -1,0 +1,7 @@
+
+NewHi = H > HHV(Ref(H, -1),200);
+
+
+Filter = (newHi)AND Volume>10000 AND C>10;
+
+AddColumn(NewHi, "NewHi");

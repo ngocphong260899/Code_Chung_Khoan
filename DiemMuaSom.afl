@@ -1,0 +1,36 @@
+DK1 = C > MA (C, 21);
+DK2 = (MACD (12,26) > Signal (12,26,9)) AND (MACD (12, 26) > Ref (MACD (12, 26), -1));
+
+TyLeTang = (C-Ref (C,-1))/Ref (C,-1);
+DK3 = TyLeTang > 0.01;
+
+GiaLonNhat10 = HHV (Ref (C, -1), 7);
+GiaBeNhat10 = LLV (Ref (C, -1), 7);
+DK4 = GiaLonNhat10 < 1.05*GiaBeNhat10; // giao dong trong 5%.
+
+GiaBeNhat60 = LLV (Ref (C,-1), 21);
+DK5 = GiaBeNhat60*1.15 > C;
+DK6 = MFI (14) > Ref (MFI (14), -1);
+
+DK7 = BBandTop (C, 15, 2) > BBandTop ( Ref (C, -1), 15, 2);
+DK_Gia = C > 5;
+
+DK_KL = V > 50000;
+
+GiaLonNhat = Highest(Ref (C, -1));
+DKHighest = GiaLonNhat <C;
+
+GiaLonNhat200 = HHV (Ref (C, -1), 200);
+DKNam = GiaLonNhat200 < C;
+
+AddColumn(C, "Close", 1.2);
+
+AddColumn(V, "Volumn", 1.0, IIf(V>100000, colorGreen, colorRed));
+
+AddColumn(DKHighest, "Highest", 1.0, IIf(DKHighest, colorGreen, colorRed));
+
+AddColumn(DKNam, "Dinh Nam", 1.0, IIf(DKNam, colorGreen, colorRed));
+
+Buy = DK1 AND DK2 AND DK3 AND DK4 AND DK5 AND DK6 AND DK7 AND DK_Gia AND DK_KL;
+
+Filter = Buy;

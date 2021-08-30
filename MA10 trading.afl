@@ -1,0 +1,19 @@
+Buy = Close>Open AND Volume > Ref(Volume,-1) AND C>=MA(C,10) AND V>=20000 AND(L<=MA(C,10) OR Ref(L,-1)<Ref(MA(C,10),-1) OR Ref(C,-1)<Ref(MA(C,10),-1));
+Sell = Cross(MA(C,50),C);
+shape = Buy*shapeUpArrow + Sell*shapeDownArrow;
+PlotShapes( shape, IIf( Buy, colorPink, colorYellow ), 0, IIf( Buy, Low, High ));
+_SECTION_END();
+
+Filter=Buy;
+
+_SECTION_BEGIN("Price");
+SetChartOptions(0,chartShowArrows|chartShowDates);
+_N(Title = StrFormat("{{NAME}} - {{INTERVAL}} {{DATE}} Open %g, Hi %g, Lo %g, Close %g (%.1f%%) {{VALUES}}", O, H, L, C, SelectedValue( ROC( C, 1 ) ) ));
+Plot( C, "Close", ParamColor("Color", colorDefault ), styleNoTitle | ParamStyle("Style") | GetPriceStyle() ); 
+_SECTION_END();
+
+_SECTION_BEGIN("MA10");
+P = ParamField("Price field",-1);
+Periods = Param("Periods", 15, 2, 300, 1, 10 );
+Plot( MA( P, 10 ), "MA10", ParamColor( "Color", colorCycle ), ParamStyle("Style") ); 
+_SECTION_END();

@@ -1,0 +1,309 @@
+_SECTION_BEGIN("TSI");
+r = Param( "TSI period 'R':", 4, 1, 100, 1 );
+s = Param( "TSI period 'S':", 7, 1, 100, 1 );
+u = Param( "TSI period 'U':", 1, 1, 100, 1 );
+sig = Param( "Signal period:", 7, 1, 100, 1 );
+
+Mtm = C - Ref ( C, -1 );
+AbsMtm = abs ( Mtm );
+Num_T = EMA ( EMA( EMA ( Mtm, r ), s ), u );
+Den_T = EMA ( EMA( EMA ( AbsMtm, r ), s ), u);
+
+TSI = 100 * Nz ( Num_T / Den_T );
+TSIL = 100 * Nz ( Num_T / Den_T );
+
+//Green TSIL Line=Rising; Red TSIL Line=Falling
+col = IIf( TSIL > Ref( TSIL, -1 ), colorCustom9, colorRed );
+//Plot( TSIL, "TSI("+r+","+s+","+u+")", col, styleLine | styleThick);
+///Green EMA TSI,sig Line=Rising; Red EMA TSI,sig Line=Falling
+col = IIf( EMA(TSI,sig) > Ref( EMA(TSI,sig), -1 ), ParamColor( "TSIRise", colorDarkGreen ), ParamColor( "TSIFall", colorDarkRed ) );
+//Plot( EMA(TSI,sig), "", col, styleThick);
+Histcol= IIf(TSI>0,colorLime,colorRed) ;
+//Plot( TSI, "", histcol, ParamStyle("Histogram style", styleThick |styleHistogram | styleNoLabel, maskHistogram ) );
+Plot(0,"",ParamColor( "ColorZero", colorBrown ),styleLine);
+Plot(-78,"",ParamColor( "OVS", colorGreen ),styleDashed);
+Plot(78,"",ParamColor( "OVB", colorRed ),styleDashed);
+Plot(-50,"",ParamColor( "OVS1", colorGrey40 ),styleDashed);
+Plot(50,"",ParamColor( "OVB1", colorGrey40 ),styleDashed);
+BuyTSI=Cross(TSIL,0);
+BuyTSI2=Cross(TSIL,EMA(TSI,sig));
+Sell=Cross(EMA(TSI,sig),TSIL);
+
+//PlotShapes(shapeUpArrow*Buy1,colorCustom11);
+//PlotShapes(shapeUpArrow*Buy2,colorCustom11);
+//PlotShapes(shapeDownArrow*Sell,colorGold);
+//Title = "TSI";
+_SECTION_END();
+//////////////////////////////////////
+
+_SECTION_BEGIN("Wavetrend with Buy-sell arrows");
+ChannelPeriods = Param("Channel Periods",10,1,50,1);
+AvgPeriods = Param("Average Periods",31,1,50,1);
+OverBought = Param("Over Bought Line",64,0,100,1);
+OverSold = Param("Over Sold Line",-64,-100,0,1);
+ColTCI = ParamColor("TCI Line Color",colorBrown);
+ColOB = ParamColor("Over Bought Color",colorRed);
+ColOS = ParamColor("Over Sold",colorGreen);
+XSpace = Param("GraphXSpace",7,0,20,0.5);
+
+n1 = ChannelPeriods; // Channel periodsdefault is 10.
+n2 = AvgPeriods; // Average periodsdefault is 31.
+
+AP = Avg; //Typical Price
+ESA = EMA(AP, n1);
+D = EMA(abs(AP - ESA), n1);
+CI = (AP - ESA) / (0.015 * D);
+TCI = EMA(CI, n2);
+
+WaveTrend1 = TCI;
+WaveTrend2 = MA(WaveTrend1,4);
+
+myColor = 
+IIf (WaveTrend1 > WaveTrend2, colorLavender,
+IIf (WaveTrend2 > WaveTrend1, colorRed ,colorLightYellow));
+
+Plot(WaveTrend1,"WaveTrend ",myColor,styleDots | styleThick);
+
+//Plot(WaveTrend2,"WaveTrend2",colorLightYellow,styl eDashed); 
+Plot(WaveTrend2,"WaveTrend2",ParamColor("Signal Line color", colorPaleBlue),styleDots); 
+
+//Plot(OverBought,"OB Line",ColOB,8+16);//|styleNoLabel);//8+16
+//Plot(OverSold,"OS Line",ColOS,8+16);//|styleNoLabel);
+//Plot(n1,"Channel Periods",colorBlue,styleNoLabel |styleNoRescale |styleNoDraw);
+//Plot(n2,"Avg Periods",colorBlue,styleNoLabel |styleNoRescale | styleNoDraw);
+//Plot(0,"0",colorRed,styleNoLabel);
+//Plot(100,"",9 ,styleOwnScale | styleArea | styleNoLabel,-5,100);
+//Background pane coloring
+
+//GraphXSpace = XSpace; 
+
+_SECTION_END();
+
+_SECTION_BEGIN("Buy Sell Signal");
+x = WaveTrend1;
+y = WaveTrend2;
+ 
+Buy=Cross(x,y);
+Sell=Cross(y,x);
+BuyWT = ExRem(Buy, Sell);
+SellWT = ExRem(Sell, Buy);
+
+//PlotShapes(shapeUpArrow*Buy,colorGreen);
+//PlotShapes(shapeDownArrow*Sell,colorRed);
+_SECTION_END ();
+
+
+////////////////  Diem mua BreakOut
+res=HHV(H,30);
+sup=LLV(L,30);
+avd=IIf(C>Ref(res,-1),1,IIf(C<Ref(sup,-1),-1,0));
+avn=ValueWhen(avd!=0,avd,1);
+tsl=IIf(avn==1,sup,res);
+
+//Scanner mode
+BuyBO=Cross(C,Ref(res,-1))AND Volume > 10000;
+SellN=Cross(Ref(sup,-1),C);
+
+////////////////  Diem mua PocketPivot
+
+
+/* Pocket Pivot*/
+
+// Gia 10 ngày
+c1 = Ref(C,-1);
+c2 = Ref(C,-2);
+c3 = Ref(C,-3);
+c4 = Ref(C,-4);
+c5 = Ref(C,-5);
+c6 = Ref(C,-6);
+c7 = Ref(C,-7);
+c8 = Ref(C,-8);
+c9 = Ref(C,-9);
+c10 = Ref(C,-10);
+c11 = Ref(C,-11);
+C25 = Ref(C,-25);
+C40 = Ref(C,-40);
+C65 = Ref(C,-65);
+C130 = Ref(C,-130);
+C200 = Ref(C,-200);
+C260 = Ref(C,-260);
+
+// Khoi luong 10 ngay
+V1 = Ref(V,-1);
+V2 = Ref(V,-2);
+V3 = Ref(V,-3);
+V4 = Ref(V,-4);
+V5 = Ref(V,-5);
+V6 = Ref(V,-6);
+V7 = Ref(V,-7);
+V8 = Ref(V,-8);
+V9 = Ref(V,-9);
+V10 = Ref(V,-10);
+
+pocketpivot = (V> 20000 AND C > C1 // tang gia 
+AND V > abs(C1 < C2) * V1 //vol lon hon 10 ngay
+AND V > abs(C2 < C3) * V2 
+AND V > abs(C3 < C4) * V3 
+AND V > abs(C4 < C5) * V4 
+AND V > abs(C5 < C6) * V5
+AND V > abs(C6 < C7) * V6 
+AND V > abs(C7 < C8) * V7 
+AND V > abs(C8 < C9) * V8 
+AND V > abs(C9 < C10) * V9 
+AND V > abs(C10 < C11) * V10)
+// gan duong sma 10
+AND (C1 > (EMA(C,10) * .98) AND C1 < (EMA(C,10) * 1.02));
+
+//AND MA(V,10 >= 10) khoi luong
+//AND EMA(C,9) > EMA(C,20)//Short term uptrend
+//AND (H - C <= (H - L) * .50)
+//AND C > 5 AND C > EMA(C,9) 
+//AND C < Ref(HHV(H,10),-1)
+
+//AND C < Ref(HHV(C,65),-10);
+
+pocketpivot5 = (V > 20000 AND C > C1 // tang gia 
+AND V > abs(C1 < C2) * V1 //vol lon hon 10 ngay
+AND V > abs(C2 < C3) * V2 
+AND V > abs(C3 < C4) * V3 
+AND V > abs(C4 < C5) * V4 
+AND V > abs(C5 < C6) * V5)
+// gan duong sma 10
+AND (C1 > (EMA(C,10) * .98) AND C1 < (EMA(C,10) * 1.02));
+
+
+//BuyPP= pocketpivot OR pocketpivot5;
+//BuyPrice = SellPrice = Open;
+x = Optimize("x", 5, 5, 20, 5);
+m = MA(C,x);
+SellPP = Cross(m, C);
+VP = Param("Period for Avg Vol" , 10, 50, 240, 1);	// sets the period for the average volume calculation
+
+//////////////////////////////////////// force index 2
+
+periods = Param("Periods", 2, 1, 100, 1);
+fi2 = EMA(((Close - Ref(Close, -1)) * V), periods);
+FI_2 = IIf(fi2 < 0, colorRed, colorBlue);
+
+///////////////////////////////////// force index 13
+periods13 = Param("Periods13", 13, 1, 100, 1);
+fi13 = EMA(((Close - Ref(Close, -1)) * V), periods13);
+FI_13 = IIf(fi13 < 0, colorRed, colorBlue);
+
+
+//////////////////////////////////////////////////// kahunas
+
+c1 = Ref(C,-1);
+
+b = (Close - BBandBot (Close, 20, 2)) / ((BBandTop (Close, 20, 2) - BBandBot (Close, 20, 2)));
+b1 = (c1 - BBandBot (c1, 20, 2)) / ((BBandTop (c1, 20, 2) - BBandBot (c1, 20, 2)));
+
+// impulse
+bi=b-b1;
+
+//Plot( b, "%b ", 15);
+//Plot( bi, "%b change", 25 );
+
+// kahunas
+BDU= bi > 0.4 ;   
+SDU= bi > 0.24  AND bi < 0.4 ;
+
+BDD= bi < -0.4;  
+SDD= bi > -0.4 AND bi < -0.24;
+
+// plot kahunas
+BD=IIf( SDU, colorLightBlue, IIf( BDU, colorBlue,IIf( BDD, colorDarkRed,IIf( SDD,colorRed,1))));
+
+/////////////////////////////////////Bongo
+
+// bongo daily
+BongoY = Close > MA(C,9) AND RSI(8) > RSI(14) AND  RSI(14) > RSI(19);
+//BongoN = Close < MA(C,9) AND RSI(8) < RSI(14) AND RSI(14) < RSI(19);
+BongoDaily=IIf( BongoY, colorBlue, colorRed);
+//bongo weekly
+TimeFrameSet(inWeekly);//switch to weekly time frame
+WMA9=  MA(C,9);
+wRsi8= RSI(8);
+wRsi14=RSI(14);
+wRsi19=RSI(19);
+TimeFrameRestore();
+w_rsi8=  TimeFrameExpand(wRsi8, inWeekly );
+w_rsi14=  TimeFrameExpand(wRsi14, inWeekly );
+w_rsi19=  TimeFrameExpand(wRsi19, inWeekly );
+w_ma=  TimeFrameExpand(WMA9, inWeekly );
+BongoWY = Close > w_ma AND w_Rsi8 > w_Rsi14 AND w_Rsi14 > w_Rsi19;
+BongoWeekly=IIf( BongoWY, colorBlue, colorRed);
+//////////////////////////////////////////// Mobo and Squeeze
+Length = 20;
+Price = EMA(Close, Length);
+
+// Keltner 
+kLength = Length;
+kN = 1.5;
+kATR = ATR(kLength);
+kUpper = Price + kN * kATR;
+kLower = Price - kN * kATR;
+
+// Bollinger
+bbLength = Length;
+bbN = 2;
+bbStDevValues = StDev(Close, bbLength);
+bbUpper = Price + bbN * bbStDevValues;
+bbLower = Price - bbN * bbStDevValues;
+
+IsSignal = 
+	bbUpper <= kUpper AND
+	bbLower >= kLower;
+
+Squeeze = IIf(IsSignal, colorYellow, 1);
+Plot(32, "", Squeeze, styleOwnScale|styleArea|styleNoLabel, 5, 50);
+
+//mobo 
+mid = MA(Close,10);
+upper = mid + 0.8*StDev(Close,10);
+Lower = mid - 0.8*StDev(Close,10);
+moboBO = Cross(C,upper);
+moboBD = Cross(C,Lower);
+mobo=IIf( moboBO, colorGreen, IIf( MoboBD, colorRed,1));
+/////////////////////////////////// SMA 200 50 17 10
+SMA10 = C>=MA(Close,10);
+SMA17 = C>=MA(Close,17);
+SMA50 = C>=MA(Close,50);
+SMA200 = C>=MA(Close,200);
+
+/////////////////////////////////// Loc va them cot 
+Filter =(BuyBO OR pocketpivot OR pocketpivot5 )AND Volume>100000;
+//Buy= BuyBO OR Pocketpivot OR pocketpivot5;
+//AlertIf( Buy, "", "BUY @ " + C, 1 );
+//AlertIf( Sell, "", "SELL @ " + C, 2 );
+//AlertIf( Buy, "", "BUY @ " + C, 1 );
+//AddTextColumn( FullName(), "Full name", 77 , colorDefault, IIf( Close < 10, colorLightBlue, colorDefault ) );
+//AddColumn( Ref(MA(V,VP),-1), WriteVal(VP, 2.0)+ " DMA", 8.0, colorWhite, colorBlue, 75);	// adds a column for the average volum
+//AddTextColumn(IndustryID(1) ,"Industry Sector  ", 25.0, colorWhite, colorBlue, 125);     // adds a column for the industry sector 
+//AddTextColumn( WriteIf(BuyBO, "Buy" , "Sell" ) ,   "TRADE" ,  5 ,   IIf(BuyBO,colorYellow, colorWhite), IIf(BuyBO, colorDarkGreen, colorRed) );
+
+//AddColumn(C, "Close", 3.2,  colorBlue, colorYellow, 55); // adds a column for today's close
+//AddColumn(Ref(Close,-1),"Y-Close",1.2, IIf( ROC(Ref(C,-1),1)>=0,colorDarkGreen, colorRed ),50 );
+//AddColumn( ROC( Close, 1 ), "% Change", 1.2, IIf( ROC(C, 1 ) >= 0,colorDarkGreen, colorRed));
+//AddColumn(V, "VOLUME",8.0, colorYellow, colorDarkGreen, 75);// adds a column for today's volume	
+BTSI=BuyTSI OR BuyTSI2;
+MyColor=ColorRGB( 255, 128, 128 );// lightRed
+lBlue=ColorRGB( 128, 128, 255 );
+
+//AddColumn( BuyWT, "WTrend", 1,colorWhite, IIf( BuyWT==1, colorGold, colorDefault ));
+//AddColumn( BTSI, "TSI", 1,colorWhite, IIf( BTSI==1, colorCustom11, colorDefault ));
+//AddColumn( mobo, "Mobo", 1,colorWhite,IIf( moboBO, colorBrightGreen, IIf( MoboBD, colorRed,colorDefault)));
+
+AddColumn( pocketpivot5, "Diem mua som",1,colorWhite, IIf( pocketpivot5==1, colorLime, colorDefault ));
+AddColumn( pocketpivot, "Diem mua", 1,colorWhite, IIf( pocketpivot==1, lBlue, colorDefault ));
+AddColumn( BuyBO, "Vuot Nen", 1,colorWhite, IIf( BuyBO==1, colorBlue, colorDefault ));
+//AddColumn( FI_13, "Force13", 1,colorWhite, IIf( fi13<0, colorRed, colorBlue));
+//AddColumn( FI_2, "Force2", 1,colorWhite, IIf( fi2<0, colorRed, colorBlue));
+//AddColumn( BD, "Kahunas", 1,colorWhite, IIf( SDU, colorLightBlue, IIf( BDU, colorBlue,IIf( BDD, colorDarkRed,IIf( SDD,colorRed,colorDefault)))));
+//AddColumn( BongoDaily, "BongoD", 1,colorWhite, IIf( BongoY, colorBlue, colorRed));
+//AddColumn( BongoWeekly, "BongoW", 1,colorWhite, IIf( BongoWY, colorBlue, colorRed));
+//AddColumn( Squeeze, "Squeeze", 1,colorWhite, IIf(IsSignal, colorYellow, colorDefault));
+//AddColumn( SMA200, "SMA200", 1,colorWhite, IIf( SMA200==1, colorLime, myColor));
+//AddColumn( SMA50, "SMA50", 1,colorWhite, IIf( SMA50==1, colorLime, myColor));
+//AddColumn( SMA17, "SMA17", 1,colorWhite, IIf( SMA17==1, colorLime, myColor));
+//AddColumn( SMA10, "SMA10", 1,colorWhite, IIf( SMA10==1, colorLime, myColor));

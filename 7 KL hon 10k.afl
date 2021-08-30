@@ -1,0 +1,5 @@
+V10= MA(V,10);
+
+Filter= V10>10000;
+
+AddColumn(V10,"khoi luong",1,colorDefault); 

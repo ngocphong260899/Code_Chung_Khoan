@@ -1,0 +1,8 @@
+//X_NewHiLo
+
+ 
+NewHi = HHV(Ref(Close, 0),120);
+
+Filter = NewHi;
+
+AddColumn(NewHi, "NewHi");
